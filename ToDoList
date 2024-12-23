@@ -1,0 +1,53 @@
+//Созадание ToDoList с функциями : добавления и описания задачи, указания задача завершена или нет, рремя создания задачи и присваивание ей уникального id номера
+
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.7;
+
+contract ToDoList {
+    struct Task {
+        uint256 id; //добавляем в task функцию id
+        string description; //добавляем функцию описания задачи
+        bool isCompleted; //добавляем функцию завершена ли задача
+        uint256 timeStamp; //когда создана задача
+    }
+    Task[] public tasks;
+
+mapping (uint256 => address) public taskToOwner; //создаем привязку id задачи к аддресу
+uint256 private nextTaskId; //создаем счетчик id задачи
+
+//создаем функцию для добавления новой задачи
+//при вызове функции юзер сразу вводит описание.
+function createTask(string memory _description) public { 
+    // таск добавляеься в массив tasks и вызывается уже заданная структура Task
+    tasks.push(Task({
+        id: nextTaskId,
+        description: _description,
+        isCompleted: false,
+        timeStamp: block.timestamp
+    }));
+    //привязываем задачу к адрессу, вызывающему функцию
+    taskToOwner[nextTaskId] = msg.sender;
+    nextTaskId++; //увеличиваем светчик id для следующей задачи
+}
+
+//создаем функцию чтобы получать таск по ןג этого таска
+//вводится id этоо таска
+function getTask(uint256 _taskId) public view returns (Task memory){
+    //если id таска больше, чем возможно, выдаем текст с ошибкой
+    require(_taskId<tasks.length, "This task does not exist");
+    //из массива tasks возвращаем таск с номером, введенным ранее
+    return tasks[_taskId];
+}
+
+//создаем функцию чтобы пометить таск как исполненный
+function markTaskAsComplite(uint256 _taskId) public returns(string memory){
+    require(_taskId<tasks.length, "This task does not exist");
+    require(taskToOwner[_taskId] == msg.sender, "You're not the owner of this task");
+    tasks[_taskId].isCompleted = true;
+    return "Your task is completed, Congrats!";
+}
+ 
+ 
+
+   
+}
